@@ -2,3 +2,4 @@ streamlit
 numpy
 pandas
 PyMySQL
+streamlit_option_menu
