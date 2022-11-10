@@ -1,5 +1,5 @@
 streamlit
-csv
+csv-22.3.1
 numpy
 pandas
-PyMySQL
+PyMySQL-1.0.2
