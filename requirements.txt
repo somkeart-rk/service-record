@@ -1,6 +1,6 @@
 streamlit
 streamlit_option_menu
-numpy-1.23.4
-pandas-1.16.0
-PyMySQL-1.0.2
+numpy
+pandas
+PyMySQL
 time
