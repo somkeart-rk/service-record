@@ -1,8 +1,8 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
-import pymysql as connection
 #from streamlit_extras.switch_page_button import switch_page
 from PIL import Image
+import include.db as db
 import service_app.newjob as nj
 import service_app.showjob as sj
 import service_app.historyjob as hj
@@ -20,11 +20,6 @@ def add_logo(logo_path, width, height):
     modified_logo = logo.resize((width, height))
     return modified_logo
 
-def init_connection():
-    return connection.connect(**st.secrets["mysql"])
-
-conn = init_connection()
-
 if not st.session_state["login"]:
     
     with st.form("login_form"):
@@ -33,7 +28,7 @@ if not st.session_state["login"]:
         imgCol2.image(my_logo,use_column_width=False)
         st.header("Login")
 
-        userName = st.text_input("User Name")
+        userName = st.text_input("User Name").upper()
         passWord = st.text_input("Password ","",20,None,"password")
 
         submitted = st.form_submit_button("Login")
@@ -41,21 +36,18 @@ if not st.session_state["login"]:
             #st.write(userName,":",passWord)
             if "login" in st.session_state:
 
-                with conn.cursor() as cur:
-                    #ตรวจสอบข้อมูลเจ้าหน้าที่
-                    query = "select  * from sms_db.tbl_user where username='"+userName+"' and password='"+passWord+"' "
-                    cur.execute(query)
-                    rows = cur.fetchall()
-                    if cur.rowcount:
-                        st.session_state["login"] = True
-                        st.session_state.userName = userName
-                        for row in rows:
-                            #st.write(f"{row[0]} has a :{row[1]}:")
-                            st.session_state.fullName = row[1]
-                            #st.write(cur)
-                        st.experimental_rerun()
-                    else:
-                        st.info("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+                #ตรวจสอบข้อมูลเจ้าหน้าที่
+                query = "select  * from sms_db.tbl_user where username='"+userName+"' and password='"+passWord+"' "
+                rows = db.run_query(query)
+                if  rows:
+                    st.session_state["login"] = True
+                    st.session_state.userName = userName
+                    for row in rows:
+                        #st.write(f"{row[0]} has a :{row[1]}:")
+                        st.session_state.fullName = row[1]
+                    st.experimental_rerun()
+                else:
+                    st.info("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
 
 def side_menu():
     with st.sidebar:
@@ -74,8 +66,8 @@ def side_menu():
                 }
         )
         if "login" in st.session_state:
-            st.write('User Name : ',st.session_state["userName"] )
-            st.write('Emp Name  : ',st.session_state["fullName"] )
+            st.write('รหัสพนักงาน : ',st.session_state["userName"] )
+            st.write('ชื่อพนักงาน  : ',st.session_state["fullName"] )
 
     if selected == "งานใหม่":
         nj.newjob()

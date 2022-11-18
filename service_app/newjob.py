@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import include.db as db
+import time
 
 def newjob():
     with st.form("new_form"):
@@ -31,5 +32,31 @@ def newjob():
             #save data into database
             st.info(f"Job No# : {jobRunning} has been created.")
 
-        st.write("ประวัติการซ่อม")
 
+def Closejob(service_No):
+    CloseJob_form = st.form(key="Close Job")
+    if 'pChange' not in st.session_state:
+        st.session_state.pChange=' '
+        st.session_state.sDetail=' '
+
+    CloseJob_form.subheader("บันทึกรายละเอียดการซ่อม")
+    serviceGroup = CloseJob_form.selectbox(f"ประเภทการซ่อม",["เปลี่ยนเข็ม","ปรับตั้งเครื่อง"])
+    CloseJob_form.text_input("อุปกรณ์ที่เปลี่ยน",key="pChange",value="Needle",max_chars=199 )
+    CloseJob_form.text_area(f"รายละเอียดการซ่อม",key="sDetail",value="144",max_chars=1000)
+    CloseJob_form.form_submit_button("ปิดงานซ่อม",on_click=saveData,args=[service_No,serviceGroup,])
+
+
+def saveData(service_No,serviceGroup,):
+    partChange = st.session_state.pChange
+    serviceDetail = st.session_state.sDetail
+    sqlUpdate = f"UPDATE `sms_db`.`tbl_service_list` SET `status`= 'CLOSE' WHERE `service_no`='{service_No}'; "
+    #st.write(sqlUpdate)
+    db.run_saveData(sqlUpdate)
+
+    sqlAddDetail = "INSERT INTO `sms_db`.`tbl_service_detail`(`service_no`,`service_group`,`part_detail`,`service_detail`) "
+    sqlAddDetail += f" VALUES('{service_No}','{serviceGroup}','{partChange}','{serviceDetail}'); "
+    #st.write(sqlAddDetail)
+    db.run_saveData(sqlAddDetail)
+    st.info(f"งานหมายเลข : {service_No} ปิดเรียบร้อย")
+    #time.sleep(0.5)
+ 
