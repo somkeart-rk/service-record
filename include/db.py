@@ -1,5 +1,6 @@
 import streamlit as st
 import pymysql as connection
+import pandas as pd
 
 def init_connection():
     return connection.connect(**st.secrets["mysql"])
