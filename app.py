@@ -58,12 +58,12 @@ def side_menu():
             menu_icon = "cast",
             default_index = 0,
             #orientation = "horizontal",
-            styles={
-                    "container": {"padding": "0!important", "background-color": "#0a0afa"},
-                    "icon": {"color": "orange", "font-size": "16px"}, 
-                    "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
-                    "nav-link-selected": {"background-color": "green"},
-                }
+            #styles={
+            #        "container": {"padding": "0!important", "background-color": "#0a0afa"},
+            #        "icon": {"color": "orange", "font-size": "16px"}, 
+            #        "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+            #        "nav-link-selected": {"background-color": "green"},
+            #    }
         )
         if "login" in st.session_state:
             st.write('รหัสพนักงาน : ',st.session_state["userName"] )

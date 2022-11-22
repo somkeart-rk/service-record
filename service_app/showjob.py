@@ -4,9 +4,10 @@ import pandas as pd
 import streamlit as st
 import service_app.newjob as nj
 import include.db as db
+import include.export_tools as exp
 
 
-#@st.cache
+@st.experimental_memo
 def convert_df(df):
     return df.to_csv(index=False).encode("utf-8")
 
@@ -18,19 +19,26 @@ def showjob():
     st.header("งานที่กำลังทำ")
     loginName= st.session_state["userName"]
     # # Show user table 
-    colms = st.columns((0.35, 0.75, 0.75, 2, 0.75))
-    fields = ["№", 'เลขที่งาน', 'เครื่องจักร', 'อาการ', 'สถานะ']
+    st.markdown(
+        """ <style> 
+            .font {font-size:16px;} 
+            .standart-text {font-size:14px; }
+            </style> 
+        """, unsafe_allow_html=True)
+
+    colms = st.columns((1, 1, 1, 2, 1),gap="small")
+    fields = ["№", 'Service No', 'M/C No', 'Detail', 'Status']
     for col, field_name in zip(colms, fields):    # header
         col.write(field_name)
 
-    sql = f"select service_list_id,service_no,machine_no,service_detail,status "
+    sql = "select service_list_id,service_no,machine_no,trim(service_detail) service_detail,status "
     sql += f" from sms_db.tbl_service_list where status='OPEN' and support_id like '{loginName}' "
     sql += " order by left(priority_type,1) desc,create_date asc ;"
     rows = db.run_query(sql)
     service_table=pd.DataFrame(rows,columns=["№","service_no","machine_no","service_detail","status"])
 
     for x, service_no in enumerate(service_table['service_no']):
-        col1, col2, col3, col4, col5 = st.columns((0.35, 0.75, 0.75, 2, 0.75))
+        col1, col2, col3, col4, col5 = st.columns((1, 1, 1, 2,1),gap="small")
         col1.write(x)  
         col2.write(service_table['service_no'][x])  
         col3.write(service_table['machine_no'][x])  
@@ -44,8 +52,10 @@ def showjob():
             serviceNo = service_table['service_no'][x]
             nj.Closejob(service_no)
 
-    csv = convert_df(service_table)
-    st.download_button(
-        "กดเพื่อบันทึกไฟล์", csv, "file.csv", "text/csv", key="download-csv"
+    st.download_button(label="download as Excel-file",
+        data=exp.convert_to_excel(service_table),
+        file_name="export_Ready_Job.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        key="excel_download",
     )
     

@@ -7,7 +7,7 @@ def newjob():
     with st.form("new_form"):
         st.header("เปิดงานใหม่")
         col1,col2,col3 = st.columns(3)
-        machineType = col1.selectbox("ประเภทเครื่องจักร",["KNIT","DYE","SPUN"])
+        machineType = col1.selectbox("ประเภทเครื่องจักร",db.load_machineType())
         machineNo = col2.text_input("หมายเลขเครื่อง")
         priority = col3.selectbox("ความเร่งด่วนของงาน",["1-LOW","2-MEDIUM","3-HIGH"])
         serviceDetail = st.text_area("ปัญหาก่อนซ่อม")
@@ -32,15 +32,15 @@ def newjob():
             #save data into database
             st.info(f"Job No# : {jobRunning} has been created.")
 
-
 def Closejob(service_No):
     CloseJob_form = st.form(key="Close Job")
-    if 'pChange' not in st.session_state:
-        st.session_state.pChange=' '
-        st.session_state.sDetail=' '
+    #if 'pChange' not in st.session_state:
+    st.session_state.pChange=''
+    st.session_state.sDetail=''
 
     CloseJob_form.subheader("บันทึกรายละเอียดการซ่อม")
-    serviceGroup = CloseJob_form.selectbox(f"ประเภทการซ่อม",["เปลี่ยนเข็ม","ปรับตั้งเครื่อง"])
+#    serviceGroup = CloseJob_form.selectbox(f"ประเภทการซ่อม",["เปลี่ยนเข็ม","ปรับตั้งเครื่อง"]) 
+    serviceGroup = CloseJob_form.selectbox(f"ประเภทการซ่อม",db.loadServiceGroup(service_No)) 
     CloseJob_form.text_input("อุปกรณ์ที่เปลี่ยน",key="pChange",value="Needle",max_chars=199 )
     CloseJob_form.text_area(f"รายละเอียดการซ่อม",key="sDetail",value="144",max_chars=1000)
     CloseJob_form.form_submit_button("ปิดงานซ่อม",on_click=saveData,args=[service_No,serviceGroup,])
