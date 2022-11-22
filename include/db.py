@@ -46,3 +46,17 @@ def update_running(systemName,machineType):
             conn.commit()
     finally:
         conn.close()
+
+#load machine type data list for selectBox
+def load_machineType():
+    sql = "select distinct t0.machine_type from sms_db.tbl_running t0 "
+    sql += " order by t0.running_id "
+    rows = run_query(sql)
+    return pd.DataFrame(rows)
+
+#load service group data list for selectbox
+def loadServiceGroup(service_No):
+    sql = "select distinct t0.service_group from sms_db.tbl_service_group t0, sms_db.tbl_service_list t1 "
+    sql += f" where t1.service_no='{service_No}' and t0.machine_type=t1.machine_type order by t0.service_group_id "
+    rows = run_query(sql)
+    return pd.DataFrame(rows,columns=["service_group"])
