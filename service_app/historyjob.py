@@ -17,35 +17,35 @@ def load_data(startDate,finishDate,machineType,machineNo):
         sql += f" and t0.machine_type='{machineType}' "
     if machineNo:
         sql += f" and t0.machine_no='{machineNo}' "
-    if startDate and finishDate:
-        sql += f" and (date_format(t1.finish_date,'%Y-%m-%d') between date'{startDate}' and '{finishDate}' ) "
+    sql += f" and (date_format(t1.finish_date,'%Y-%m-%d') between date'{startDate}' and '{finishDate}' ) "
     sql += " order by t1.finish_date desc; "
     rows = db.run_query(sql)
     return pd.DataFrame(rows,columns=["Service No","Machine No","Service Detail","Support ID","Finish Date"])
     
 def showhistiryjob():
-    st.header("ประวัติการซ่อม")
+    with st.container():
+        st.header("ประวัติการซ่อม")
 
-    col1, col2,col3,col4,col5 = st.columns([1,1,1,1,1])
+        col1, col2,col3,col4,col5 = st.columns([1,1,1,1,1])
 
-    st_d = col1.date_input("วันที่เริ่ม")
-    fn_d = col2.date_input("วันสุดท้าย")
-    machineType = col3.selectbox("ประเภทเครื่องจักร",db.load_machineType())
-    machineNo = col4.text_input("หมายเลขเครื่อง")
+        st_d = col1.date_input("วันที่เริ่ม")
+        fn_d = col2.date_input("วันสุดท้าย")
+        machineType = col3.selectbox("ประเภทเครื่องจักร",db.load_machineType())
+        machineNo = col4.text_input("หมายเลขเครื่อง")
 
-    if col5.button("ค้นหา"):
-        #st.write(st_d," ",fn_d)
-        df = load_data(st_d,fn_d,machineType,machineNo)
-        st.dataframe(df, use_container_width=True)
-        st.download_button(label="download as Excel-file",
-            data=exp.convert_to_excel(df),
-            file_name="export_history.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            key="excel_download",
-        )
+        if col5.button("ค้นหา"):
+            #st.write(st_d," ",fn_d)
+            df = load_data(st_d,fn_d,machineType,machineNo)
+            st.dataframe(df, use_container_width=True)
+            st.download_button(label="download as Excel-file",
+                data=exp.convert_to_excel(df),
+                file_name="export_history.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                key="excel_download",
+            )
 
-    else:
-        st.write('Not Select')
+        else:
+            st.write('Not Select')
 
 
 

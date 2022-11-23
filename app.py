@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 #from streamlit_extras.switch_page_button import switch_page
 from PIL import Image
+import base64
 import include.db as db
 import service_app.newjob as nj
 import service_app.showjob as sj
@@ -30,15 +31,22 @@ if not st.session_state["login"]:
 
         userName = st.text_input("User Name").upper()
         passWord = st.text_input("Password ","",20,None,"password")
-
         submitted = st.form_submit_button("Login")
         if submitted:
-            #st.write(userName,":",passWord)
             if "login" in st.session_state:
-
+                #แปลงค่ารหัสผ่านให้เป็น base64
+                enPassword = passWord.encode('ascii')
+                b64_bytes = base64.b64encode(enPassword)
+                #แปลงจาก Byte to string
+                #st.write(b64_bytes.decode("ascii"))
+                #st.write(b64_bytes)
                 #ตรวจสอบข้อมูลเจ้าหน้าที่
-                query = "select  * from sms_db.tbl_user where username='"+userName+"' and password='"+passWord+"' "
-                rows = db.run_query(query)
+                sql = 'select  t0.emp_code,concat(t1.emp_fname," ",t1.emp_lname) user_name,t0.password_remark '
+                sql += ' from tsc_datacenter.user_data t0,hr_system.employee t1 '
+                sql += f' where t0.user_name="{userName}" and t0.password_remark="{b64_bytes.decode("ascii")}" '
+                sql += ' and t0.active="Y" and t0.emp_code=t1.emp_code2 '
+                #st.write(sql)
+                rows = db.run_query(sql)
                 if  rows:
                     st.session_state["login"] = True
                     st.session_state.userName = userName
@@ -48,6 +56,10 @@ if not st.session_state["login"]:
                     st.experimental_rerun()
                 else:
                     st.info("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+                    #enPassword = 'bWFoYWxv'  #passWord.encode('ascii')
+                    #b64_bytes =    base64.b64decode('bWFoYWxv')
+                    #st.write(b64_bytes)
+                    #st.write(b64_bytes.decode("ascii"))
 
 def side_menu():
     with st.sidebar:

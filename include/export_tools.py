@@ -8,9 +8,6 @@ def convert_to_excel(df):
     writer = pd.ExcelWriter(output, engine="xlsxwriter")
     df.to_excel(writer, sheet_name="export data")
 
-    # you can do all sorts of formating here 
-    # see: https://xlsxwriter.readthedocs.io/working_with_pandas.html
-
     writer.save()
     
     return output.getvalue()
